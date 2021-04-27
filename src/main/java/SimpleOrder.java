@@ -5,9 +5,12 @@ import java.util.List;
 public class SimpleOrder implements Order{
     private List<OrderItem> orders = new ArrayList<>();
     private Customer cust;
+    private TaxCalculator calculator;
 
     public SimpleOrder(Customer cust) {
         this.cust = cust;
+        TaxFactory factory = new TaxFactory();
+        this.calculator = factory.getTax(cust);
     }
 
     public void add(OrderItem item) {
@@ -16,10 +19,9 @@ public class SimpleOrder implements Order{
     /** Returns placed order's total price*/
     public double getTotal() {
         double total = 0;
-        TaxContext calculator = new TaxContext();
         for (OrderItem item : orders) {
-            total += item.getPrice()*item.getQuantity() + calculator.calculateTax(cust.getZip());
+            total += item.getPrice()*item.getQuantity();
         }
-        return (total * calculator.calculateTax(cust.getZip()))/100 + total;
+        return calculator.applyTax(total, cust);
     }
 }
